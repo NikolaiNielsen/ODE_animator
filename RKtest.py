@@ -2,7 +2,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-import time
 
 
 # inputs:
@@ -20,6 +19,7 @@ def f(x, p):
 
 
 def rk4(r, t, dt, f, p):
+    # The four contributions
     k1 = f(r, p)
     k2 = f(r + 0.5*dt*k1, p)
     k3 = f(r + 0.5*dt*k2, p)
@@ -28,6 +28,8 @@ def rk4(r, t, dt, f, p):
 
 
 def rka(x, t, dt, err, f, p):
+    # Adaptive Runge Kutta. Directly lifted from our course in Numerical
+    # Methods.
     tSave = t
     xSave = x
     safe1 = 0.9
@@ -73,7 +75,9 @@ def sim_rk4(f, x0, dt, N, p):
 
 
 class Animator(object):
+    # The animator object, created for every simulation we want to plot
     def __init__(self, fig, ax, x, xlim=(-2, 2), ylim=(-2, 2)):
+        # plug stuff into the object and create the empty line
         self.ax = ax
         self.fig = fig
         self.line, = ax.plot([], [], 'k-')
@@ -84,11 +88,16 @@ class Animator(object):
         self.N = self.x.shape[1]
 
     def init(self):
+        # function to clear the line every time it is plotted (init function 
+        # for FuncAnim)
         self.line.set_data([], [])
         return self.line,
 
     def __call__(self, i):
+        # The function for updating the plot
         if i == N-1:
+            # on the last step we stop the animation and just plot the finished 
+            # product instead
             self.fig.canvas.close_event()
             self.ax.plot(self.x[0], self.x[1], 'k-')
         self.line.set_data(self.x[0, :i], self.x[1, :i])
@@ -96,13 +105,28 @@ class Animator(object):
 
 
 def on_mouse(event, fig, ax):
+    # Pressing the mouse button grabs the x and y position, simulates the 
+    # system and animates it.
+
+    # But only if it's a left mouse click
+    if event.button != 1: return
+
+    # Grab the initial conditions
     x0 = np.array([event.xdata, event.ydata])
+
+    # simulate with RK4
     x, _ = sim_rk4(f, x0, dt, N, p)
+
+    # Instantiate the animator
     A = Animator(fig, ax, x)
+
+    # Run the animation
     ani = animation.FuncAnimation(
         fig, A, init_func=A.init, frames=N, interval=1000/N, blit=True,
         save_count=1000,
         repeat=False)
+    
+    # And remember to draw!
     fig.canvas.draw()
 
 
