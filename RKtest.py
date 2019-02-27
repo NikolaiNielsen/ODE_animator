@@ -75,7 +75,7 @@ def sim_rk4(f, x0, dt, N, p):
 #%%
 p = np.array([[0,-1],[1,0]])
 x0 = np.array([1,0])
-N = 1000
+N = 100
 t = np.zeros(N)
 dt = 0.01
 xlim = (-2, 2)
@@ -87,25 +87,18 @@ ax.axis('equal')
 ax.set_xlim(*xlim)
 ax.set_ylim(*ylim)
 
-line, = ax.plot([],[], 'k-')
 
-x,t = sim_rk4(f, x0, dt, N, p)
+def on_mouse(event, fig, ax):    
+    x0 = np.array([event.xdata, event.ydata])
+    x, t = sim_rk4(f, x0, dt, N, p)
+    A = Animator(ax, x)
+    ani = animation.FuncAnimation(
+        fig, A, init_func=A.init, interval=1, blit=True, save_count=1000,
+        repeat=False)
+    fig.canvas.draw()
 
-def on_mouse(event):
-    print(event.button, event.xdata, event.ydata)
-
-fig.canvas.mpl_connect('button_press_event', on_mouse)
-
-def init():
-    line.set_data([],[])
-    return line,
-
-
-def animate(i):
-    line.set_data(x[0, :i], x[1,:i])
-    return line,
-
-
+fig.canvas.mpl_connect('button_press_event',
+                       lambda event: on_mouse(event, fig=fig, ax=ax))
 
 class Animator(object):
     def __init__(self, ax, x, xlim=(-2,2), ylim=(-2,2)):
@@ -124,11 +117,6 @@ class Animator(object):
         self.line.set_data(self.x[0, :i], self.x[1, :i])
         return self.line,
     
-
-
-A = Animator(ax, x)
-ani = animation.FuncAnimation(
-    fig, A, init_func=A.init, interval=1, blit=True, save_count=1000)
 plt.show()
 
 #%%
