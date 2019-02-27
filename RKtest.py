@@ -27,6 +27,20 @@ def rk4(r, t, dt, f, p):
     return r + dt * (k1 + 2*k2 + 2*k3 + k4)/6
 
 
+def get_plot_indices(N, n):
+    # Returns a list of indices used for each frame of the animation
+    # N: Total number of data points
+    # n: number of (new) points to show in each frame
+    frames = int(np.ceil(N/n))
+    id = np.cumsum(np.ones(frames)*n)
+    # If the last entry in id is larger than N, we set it to N, so we dont' get 
+    # an index out of bounds error
+    if id[-1] > N:
+        id[-1] = N
+    # And lastly we subtract 1 to account for zero-indexation:
+    return id-1
+
+
 def rka(x, t, dt, err, f, p):
     # Adaptive Runge Kutta. Directly lifted from our course in Numerical
     # Methods.
