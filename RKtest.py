@@ -128,7 +128,7 @@ class Animator(object):
 
 A = Animator(ax, x)
 ani = animation.FuncAnimation(
-    fig, A, init_func=A.init, interval=1, blit=True, save_count=50)
+    fig, A, init_func=A.init, interval=1, blit=True, save_count=100)
 plt.show()
 
 #%%
