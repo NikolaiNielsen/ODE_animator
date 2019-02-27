@@ -92,14 +92,20 @@ line, = ax.plot([],[], 'k-')
 
 x,t = sim_rk4(f, x0, dt, N, p)
 
+def on_mouse(event):
+    print(event.button, event.xdata, event.ydata)
+
+fig.canvas.mpl_connect('button_press_event', on_mouse)
 
 def init():
     line.set_data([],[])
     return line,
 
+
 def animate(i):
     line.set_data(x[0, :i], x[1,:i])
     return line,
+
 
 ani = animation.FuncAnimation(
     fig, animate, init_func=init, interval=1, blit=True, save_count=50)
