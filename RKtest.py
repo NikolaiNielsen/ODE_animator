@@ -87,7 +87,6 @@ ax.axis('equal')
 ax.set_xlim(*xlim)
 ax.set_ylim(*ylim)
 
-
 line, = ax.plot([],[], 'k-')
 
 x,t = sim_rk4(f, x0, dt, N, p)
@@ -107,8 +106,29 @@ def animate(i):
     return line,
 
 
+
+class Animator(object):
+    def __init__(self, ax, x, xlim=(-2,2), ylim=(-2,2)):
+        self.ax = ax
+        self.line, = ax.plot([], [], 'k-')
+        self.ax.axis('equal')
+        self.ax.set_xlim(*xlim)
+        self.ax.set_ylim(*ylim)
+        self.x = x
+    
+    def init(self):
+        self.line.set_data([],[])
+        return self.line,
+
+    def __call__(self, i):
+        line.set_data(self.x[0, :i], self.x[1, :i])
+        return line,
+    
+
+
+A = Animator(ax, x)
 ani = animation.FuncAnimation(
-    fig, animate, init_func=init, interval=1, blit=True, save_count=50)
+    fig, A, init_func=A.init, interval=1, blit=True, save_count=50)
 plt.show()
 
 #%%
