@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-
+import time
 
 
 # inputs:
@@ -97,6 +97,8 @@ def on_mouse(event, fig, ax):
         save_count=1000,
         repeat=False)
     fig.canvas.draw()
+    del ani
+    ax.plot(x[0], x[1])
 
 fig.canvas.mpl_connect('button_press_event',
                        lambda event: on_mouse(event, fig=fig, ax=ax))
