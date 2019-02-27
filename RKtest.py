@@ -93,7 +93,8 @@ def on_mouse(event, fig, ax):
     x, t = sim_rk4(f, x0, dt, N, p)
     A = Animator(ax, x)
     ani = animation.FuncAnimation(
-        fig, A, init_func=A.init, interval=1, blit=True, save_count=1000,
+        fig, A, init_func=A.init, frames=N, interval=1000/N, blit=True,
+        save_count=1000,
         repeat=False)
     fig.canvas.draw()
 
@@ -108,7 +109,8 @@ class Animator(object):
         self.ax.set_xlim(*xlim)
         self.ax.set_ylim(*ylim)
         self.x = x
-    
+        self.N = self.x.shape[1]
+
     def init(self):
         self.line.set_data([],[])
         return self.line,
@@ -116,7 +118,7 @@ class Animator(object):
     def __call__(self, i):
         self.line.set_data(self.x[0, :i], self.x[1, :i])
         return self.line,
-    
+
 plt.show()
 
 #%%
