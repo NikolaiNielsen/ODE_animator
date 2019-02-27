@@ -91,21 +91,20 @@ ax.set_ylim(*ylim)
 def on_mouse(event, fig, ax):    
     x0 = np.array([event.xdata, event.ydata])
     x, t = sim_rk4(f, x0, dt, N, p)
-    A = Animator(ax, x)
+    A = Animator(fig, ax, x)
     ani = animation.FuncAnimation(
         fig, A, init_func=A.init, frames=N, interval=1000/N, blit=True,
         save_count=1000,
         repeat=False)
     fig.canvas.draw()
-    del ani
-    ax.plot(x[0], x[1])
 
 fig.canvas.mpl_connect('button_press_event',
                        lambda event: on_mouse(event, fig=fig, ax=ax))
 
 class Animator(object):
-    def __init__(self, ax, x, xlim=(-2,2), ylim=(-2,2)):
+    def __init__(self, fig, ax, x, xlim=(-2,2), ylim=(-2,2)):
         self.ax = ax
+        self.fig = fig
         self.line, = ax.plot([], [], 'k-')
         self.ax.axis('equal')
         self.ax.set_xlim(*xlim)
@@ -118,6 +117,9 @@ class Animator(object):
         return self.line,
 
     def __call__(self, i):
+        if i == N-1:
+            self.fig.canvas.close_event()
+            self.ax.plot(self.x[0], self.x[1], 'k-')
         self.line.set_data(self.x[0, :i], self.x[1, :i])
         return self.line,
 
