@@ -11,6 +11,7 @@ import matplotlib.animation as animation
 # p: object containing the parameters for the function p. For example d,d 
 #    matrix for a linear system
 
+n_skip = 5
 
 def f(x, p):
     x1, x2 = x
@@ -32,7 +33,7 @@ def get_plot_indices(N, n):
     # N: Total number of data points
     # n: number of (new) points to show in each frame
     frames = int(np.ceil(N/n))
-    id = np.cumsum(np.ones(frames)*n)
+    id = np.cumsum(np.ones(frames)*n, dtype=int)
     # If the last entry in id is larger than N, we set it to N, so we dont' get 
     # an index out of bounds error
     if id[-1] > N:
@@ -90,7 +91,7 @@ def sim_rk4(f, x0, dt, N, p):
 
 class Animator(object):
     # The animator object, created for every simulation we want to plot
-    def __init__(self, fig, ax, x, xlim=(-2, 2), ylim=(-2, 2)):
+    def __init__(self, fig, ax, x, ids, xlim=(-2, 2), ylim=(-2, 2)):
         # plug stuff into the object and create the empty line
         self.ax = ax
         self.fig = fig
@@ -100,6 +101,8 @@ class Animator(object):
         self.ax.set_ylim(*ylim)
         self.x = x
         self.N = self.x.shape[1]
+        self.frames = ids.size
+        self.ids = ids
 
     def init(self):
         # function to clear the line every time it is plotted (init function 
@@ -109,16 +112,17 @@ class Animator(object):
 
     def __call__(self, i):
         # The function for updating the plot
-        if i == N-1:
+        id = self.ids[i]
+        if i == self.frames - 1:
             # on the last step we stop the animation and just plot the finished 
             # product instead
             self.fig.canvas.close_event()
             self.ax.plot(self.x[0], self.x[1], 'k-')
-        self.line.set_data(self.x[0, :i], self.x[1, :i])
+        self.line.set_data(self.x[0, :id], self.x[1, :id])
         return self.line,
 
 
-def on_mouse(event, fig, ax):
+def on_mouse(event, fig, ax, n_skip):
     # Pressing the mouse button grabs the x and y position, simulates the 
     # system and animates it.
 
@@ -131,12 +135,15 @@ def on_mouse(event, fig, ax):
     # simulate with RK4
     x, _ = sim_rk4(f, x0, dt, N, p)
 
+    # Get the plot ids
+    ids = get_plot_indices(N, n_skip)
+
     # Instantiate the animator
-    A = Animator(fig, ax, x)
+    A = Animator(fig, ax, x, ids)
 
     # Run the animation
     ani = animation.FuncAnimation(
-        fig, A, init_func=A.init, frames=N, interval=1000/N, blit=True,
+        fig, A, init_func=A.init, frames=ids.size, interval=2, blit=True,
         save_count=1000,
         repeat=False)
     
@@ -161,7 +168,8 @@ ax.set_xlim(*xlim)
 ax.set_ylim(*ylim)
 
 fig.canvas.mpl_connect('button_press_event',
-                       lambda event: on_mouse(event, fig=fig, ax=ax))
+                       lambda event: on_mouse(event, fig=fig, ax=ax, 
+                                              n_skip=n_skip))
 
 plt.show()
 
