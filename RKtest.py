@@ -1,6 +1,7 @@
 #%%
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 
 
 
@@ -55,27 +56,53 @@ def rka(x, t, dt, err, f, p):
     
     raise Exception('Adaptive Runge-Kutta routine failed')
 
+def sim_rk4(f, x0, dt, N, p):
+    # create our position vector
+    x = np.zeros(list(x0.shape) + [N])
+    x[:,0] = x0
+    # create our time vector
+    t = np.cumsum(np.zeros(N)+dt) - dt
+
+    # perform the simulation
+    for n in range(1, N):
+        x[:,n] = rk4(x[:, n-1], t[n-1], dt, f, p)
+    
+    return x, t
+
+
+
+
 #%%
 p = np.array([[0,-1],[1,0]])
-x = np.array([1,0])
-N = 10000
+x0 = np.array([1,0])
+N = 1000
 t = np.zeros(N)
-x_final = np.zeros(list(x.shape) + [N])
-x_final[:,0] = x
-x_final2= np.zeros(list(x.shape) + [N])
-x_final2[:,0] = x
-dt = np.zeros(N) + 0.01
+dt = 0.01
+xlim = (-2, 2)
+ylim = (-2, 2)
 
-Aerr = 10e-5
-
-for n in range(1, N):
-    x_final[:, n] = rk4(x_final[:,n-1], 0, dt[0], f, p)
-    #x_final[:,n], t[n], dt[n] = rka(x_final[:,n-1], t[n-1], dt[n-1], Aerr, f, p)
-    x_final2[:,n] = x_final2[:,n-1] + dt[n]*f(x_final2[:,n-1],p)
-
-diffmag = np.linalg.norm(x_final-x_final2, axis=0)
 
 fig, ax = plt.subplots()
-ax.plot(x_final[0],x_final[1])
 ax.axis('equal')
+ax.set_xlim(*xlim)
+ax.set_ylim(*ylim)
+
+
+line, = ax.plot([],[], 'k-')
+
+x,t = sim_rk4(f, x0, dt, N, p)
+
+
+def init():
+    line.set_data([],[])
+    return line,
+
+def animate(i):
+    line.set_data(x[0, :i], x[1,:i])
+    return line,
+
+ani = animation.FuncAnimation(
+    fig, animate, init_func=init, interval=1, blit=True, save_count=50)
+plt.show()
+
 #%%
