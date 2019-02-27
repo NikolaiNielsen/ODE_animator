@@ -121,8 +121,8 @@ class Animator(object):
         return self.line,
 
     def __call__(self, i):
-        line.set_data(self.x[0, :i], self.x[1, :i])
-        return line,
+        self.line.set_data(self.x[0, :i], self.x[1, :i])
+        return self.line,
     
 
 
