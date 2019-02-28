@@ -99,7 +99,7 @@ def sim_rk4(f, x0, dt, N, p=None):
         x[:,n] = rk4(x[:, n-1], t[n-1], dt, f, p)
 
         # Calculate the minimum distance to preceeding points. Stop if smaller
-        # than e_stop
+        # than e_stop.
         min_dist = get_dists(x[:,n], x[:,:n])
         if min_dist <= e_stop:
             N = n + 1
@@ -150,12 +150,12 @@ class Animator(object):
             # product instead
             self.fig.canvas.close_event()
             self.ax.plot(self.x[0], self.x[1], 'k-')
-            print('anim done')
+            print('animation done')
         self.line.set_data(self.x[0, :id], self.x[1, :id])
         return self.line,
 
 
-def on_mouse(event, fig, ax, n_skip):
+def on_mouse(event, fig, ax, n_skip, N=N):
     # Pressing the mouse button grabs the x and y position, simulates the 
     # system and animates it.
 
@@ -167,6 +167,8 @@ def on_mouse(event, fig, ax, n_skip):
 
     # simulate with RK4
     x, _ = sim_rk4(f, x0, dt, N, p)
+    # Get the new data length
+    N = x.shape[1]
 
     # Get the plot ids
     ids = get_plot_indices(N, n_skip)
