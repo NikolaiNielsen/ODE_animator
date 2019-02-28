@@ -11,15 +11,26 @@ import matplotlib.animation as animation
 # p: object containing the parameters for the function p. For example d,d 
 #    matrix for a linear system
 
-n_skip = 5
+p = np.array([[0, -1], [1, 0]])
+x0 = np.array([1, 0])
+N = 5000
+t = np.zeros(N)
+dt = 0.02
+xlim = np.array([-1, 1]) * 4
+ylim = np.array([-1, 1]) * 4
+n_skip = 10
 
 def f(x, p):
+    mu = 1
     x1, x2 = x
-    res = np.array([-x2, x1])
-    return res
+    dx = x2
+    dy = mu * (1-x1**2) * x2 - x1
+    # dx = mu * (x1 - x1**3 / 3 - x2)
+    # dy = x1 / mu
+    return np.array((dx, dy))
 
 
-def rk4(r, t, dt, f, p):
+def rk4(r, t, dt, f, p=None):
     # The four contributions
     k1 = f(r, p)
     k2 = f(r + 0.5*dt*k1, p)
@@ -42,7 +53,7 @@ def get_plot_indices(N, n):
     return id-1
 
 
-def rka(x, t, dt, err, f, p):
+def rka(x, t, dt, err, f, p=None):
     # Adaptive Runge Kutta. Directly lifted from our course in Numerical
     # Methods.
     tSave = t
@@ -75,7 +86,7 @@ def rka(x, t, dt, err, f, p):
     raise Exception('Adaptive Runge-Kutta routine failed')
 
 
-def sim_rk4(f, x0, dt, N, p):
+def sim_rk4(f, x0, dt, N, p=None):
     # create our position vector
     x = np.zeros(list(x0.shape) + [N])
     x[:,0] = x0
@@ -118,6 +129,7 @@ class Animator(object):
             # product instead
             self.fig.canvas.close_event()
             self.ax.plot(self.x[0], self.x[1], 'k-')
+            print('anim done')
         self.line.set_data(self.x[0, :id], self.x[1, :id])
         return self.line,
 
@@ -139,7 +151,7 @@ def on_mouse(event, fig, ax, n_skip):
     ids = get_plot_indices(N, n_skip)
 
     # Instantiate the animator
-    A = Animator(fig, ax, x, ids)
+    A = Animator(fig, ax, x, ids, xlim, ylim)
 
     # Run the animation
     ani = animation.FuncAnimation(
@@ -149,17 +161,6 @@ def on_mouse(event, fig, ax, n_skip):
     
     # And remember to draw!
     fig.canvas.draw()
-
-
-
-#%%
-p = np.array([[0,-1],[1,0]])
-x0 = np.array([1,0])
-N = 1000
-t = np.zeros(N)
-dt = 0.01
-xlim = (-2, 2)
-ylim = (-2, 2)
 
 
 fig, ax = plt.subplots()
