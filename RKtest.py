@@ -23,10 +23,10 @@ n_skip = 10
 def f(x, p):
     mu = 1
     x1, x2 = x
+    # dx = x2
+    # dy = mu * (1-x1**2) * x2 - x1
     dx = x2
-    dy = mu * (1-x1**2) * x2 - x1
-    # dx = mu * (x1 - x1**3 / 3 - x2)
-    # dy = x1 / mu
+    dy = x1
     return np.array((dx, dy))
 
 
