@@ -19,13 +19,14 @@ dt = 0.02
 xlim = np.array([-1, 1]) * 4
 ylim = np.array([-1, 1]) * 4
 n_skip = 10
+e_stop = 0.01
 
 def f(x, p):
-    mu = 1
+    mu = 2
     x1, x2 = x
     # dx = x2
     # dy = mu * (1-x1**2) * x2 - x1
-    dx = x2
+    dx = -x2
     dy = x1
     return np.array((dx, dy))
 
@@ -96,8 +97,28 @@ def sim_rk4(f, x0, dt, N, p=None):
     # perform the simulation
     for n in range(1, N):
         x[:,n] = rk4(x[:, n-1], t[n-1], dt, f, p)
-    
+
+        # Calculate the minimum distance to preceeding points. Stop if smaller
+        # than e_stop
+        min_dist = get_dists(x[:,n], x[:,:n])
+        if min_dist <= e_stop:
+            N = n + 1
+            return x[:,:N], t[:N]
     return x, t
+
+def get_dists(x, x_pre):
+    x_cur = np.atleast_2d(x).T
+    return np.amin(np.sqrt(np.sum((x_pre-x_cur)**2, axis=0)))
+
+def min_prec_dist(x):
+    # calculates the minimum distance from the current point to preceeding 
+    # points
+    N = x.shape[1]
+    min_dist = np.zeros(N)
+    for n in range(1, N):
+        x_pre = x[:, :n]
+        min_dist[n] = get_dists(x[:,n], x_pre)
+    return min_dist
 
 
 class Animator(object):
@@ -162,16 +183,17 @@ def on_mouse(event, fig, ax, n_skip):
     # And remember to draw!
     fig.canvas.draw()
 
+def main(f=f):
+    fig, ax = plt.subplots()
+    ax.axis('equal')
+    ax.set_xlim(*xlim)
+    ax.set_ylim(*ylim)
 
-fig, ax = plt.subplots()
-ax.axis('equal')
-ax.set_xlim(*xlim)
-ax.set_ylim(*ylim)
+    fig.canvas.mpl_connect('button_press_event',
+                        lambda event: on_mouse(event, fig=fig, ax=ax, 
+                                                n_skip=n_skip))
 
-fig.canvas.mpl_connect('button_press_event',
-                       lambda event: on_mouse(event, fig=fig, ax=ax, 
-                                              n_skip=n_skip))
+    plt.show()
 
-plt.show()
-
-#%%
+if __name__ == "__main__":
+    main()
