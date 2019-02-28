@@ -188,19 +188,21 @@ def on_mouse(event, fig, ax, n_skip, N=N):
 
 
 def quitter(event):
+    # Quit the program if ctrl+q is pressed
     if event.key == 'ctrl+q':
         print('Quitting')
         sys.exit()
 
 
 def disconnect_mouse(event, fig, cid):
+    # Disconnect the on_mouse event when ctrl+z is pressed
     if event.key == 'ctrl+z':
         fig.canvas.mpl_disconnect(cid)
         print('on_mouse disconnected')
 
 
 def main(f=f):
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(8,8))
     ax.axis('equal')
     ax.set_xlim(*xlim)
     ax.set_ylim(*ylim)
@@ -211,10 +213,8 @@ def main(f=f):
 
     cid2 = fig.canvas.mpl_connect('key_press_event', quitter)
 
-    cid3 = fig.canvas.mpl_connect('key_press_event',
-                                  lambda event: disconnect_mouse(
-                                      event, fig, cid
-                                  ))
+    cid3 = fig.canvas.mpl_connect(
+        'key_press_event', lambda event: disconnect_mouse(event, fig, cid))
     plt.show()
 
 if __name__ == "__main__":
