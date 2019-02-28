@@ -2,6 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+import sys
 
 
 # inputs:
@@ -15,19 +16,19 @@ p = np.array([[0, -1], [1, 0]])
 x0 = np.array([1, 0])
 N = 5000
 t = np.zeros(N)
-dt = 0.02
+dt = 0.01
 xlim = np.array([-1, 1]) * 4
 ylim = np.array([-1, 1]) * 4
 n_skip = 10
-e_stop = 0.01
+e_stop = 0.001
 
 def f(x, p):
     mu = 2
     x1, x2 = x
-    # dx = x2
+    dx = x2
     # dy = mu * (1-x1**2) * x2 - x1
-    dx = -x2
-    dy = x1
+    # dx = -x2
+    dy = -x1
     return np.array((dx, dy))
 
 
@@ -185,16 +186,23 @@ def on_mouse(event, fig, ax, n_skip, N=N):
     # And remember to draw!
     fig.canvas.draw()
 
+
+def quitter(event):
+    if event.key == 'ctrl+q':
+        sys.exit()
+
+
 def main(f=f):
     fig, ax = plt.subplots()
     ax.axis('equal')
     ax.set_xlim(*xlim)
     ax.set_ylim(*ylim)
 
-    fig.canvas.mpl_connect('button_press_event',
+    cid = fig.canvas.mpl_connect('button_press_event',
                         lambda event: on_mouse(event, fig=fig, ax=ax, 
                                                 n_skip=n_skip))
 
+    cid2 = fig.canvas.mpl_connect('key_release_event', quitter)
     plt.show()
 
 if __name__ == "__main__":
