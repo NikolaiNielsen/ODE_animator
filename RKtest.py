@@ -209,9 +209,9 @@ def main(f=f):
                         lambda event: on_mouse(event, fig=fig, ax=ax, 
                                                 n_skip=n_skip))
 
-    cid2 = fig.canvas.mpl_connect('key_release_event', quitter)
+    cid2 = fig.canvas.mpl_connect('key_press_event', quitter)
 
-    cid3 = fig.canvas.mpl_connect('key_release_event',
+    cid3 = fig.canvas.mpl_connect('key_press_event',
                                   lambda event: disconnect_mouse(
                                       event, fig, cid
                                   ))
