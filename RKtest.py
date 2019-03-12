@@ -12,6 +12,13 @@ import sys
 # p: object containing the parameters for the function p. For example d,d 
 #    matrix for a linear system
 
+
+
+# data structure:
+# the data structure has the following form:
+# data.shape == (no init conditions, no coords, no iterations)
+
+
 p = np.array([[0, -1], [1, 0]])
 x0 = np.array([1, 0])
 N = 5000
@@ -24,12 +31,12 @@ e_stop = 0.001
 
 def f(x, p):
     mu = 2
-    x1, x2 = x.T
+    x1, x2 = x
     dx = x2
     # dy = mu * (1-x1**2) * x2 - x1
     # dx = -x2
     dy = -x1
-    return np.array((dx, dy)).T
+    return np.array((dx, dy))
 
 
 def rk4(r, t, dt, f, p=None):
@@ -90,8 +97,8 @@ def rka(x, t, dt, err, f, p=None):
 
 def sim_rk4(f, x0, dt, N, p=None):
     # create our position vector
-    x = np.zeros(list(x0.shape) + [N])
-    x[:,0] = x0
+    x = np.zeros(list(np.atleast_2d(x0).shape) + [N])
+    x[:,:,0] = x0
     # create our time vector
     t = np.cumsum(np.zeros(N)+dt) - dt
 
