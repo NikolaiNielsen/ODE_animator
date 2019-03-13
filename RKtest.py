@@ -137,14 +137,14 @@ class Animator(object):
     
     def add_artist(self, x, n_skip):
         for xi in x:
-            ids = self.get_plot_indices(xi.shape[-1], n_skip)
+            ids = self._get_plot_indices(xi.shape[-1], n_skip)
             self.data.append(xi)
             self.ids.append(ids)
             self.max_frames.append(ids.size)
             self.current_frame.append(0)
             self.artists.append(self.ax.plot([],[],'k-')[0])
     
-    def get_plot_indices(self, N, n):
+    def _get_plot_indices(self, N, n):
         # Returns a list of indices used for each frame of the animation
         # N: Total number of data points
         # n: number of (new) points to show in each frame
@@ -157,7 +157,7 @@ class Animator(object):
         # And lastly we subtract 1 to account for zero-indexation:
         return id-1
 
-    def init(self):
+    def _init(self):
         # function to clear the line every time it is plotted (init function 
         # for FuncAnim)
         for artist in self.artists:
@@ -233,7 +233,7 @@ def main(f=f):
         'key_press_event', lambda event: disconnect_mouse(event, fig, cid))
     
     ani = animation.FuncAnimation(
-        fig, A, init_func=A.init, interval=2, blit=True,
+        fig, A, init_func=A._init, interval=2, blit=True,
         save_count=1000,
         repeat=False)
     plt.show()
