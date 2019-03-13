@@ -197,10 +197,6 @@ def on_mouse(event, A, fig, ax, n_skip, N=N):
     A.add_artist(x, n_skip)
 
     # Run the animation
-    ani = animation.FuncAnimation(
-        fig, A, init_func=A.init, interval=2, blit=True,
-        save_count=1000,
-        repeat=False)
     
     # And remember to draw!
     fig.canvas.draw()
@@ -235,6 +231,11 @@ def main(f=f):
 
     cid3 = fig.canvas.mpl_connect(
         'key_press_event', lambda event: disconnect_mouse(event, fig, cid))
+    
+    ani = animation.FuncAnimation(
+        fig, A, init_func=A.init, interval=2, blit=True,
+        save_count=1000,
+        repeat=False)
     plt.show()
 
 if __name__ == "__main__":
