@@ -166,15 +166,18 @@ class Animator(object):
 
     def __call__(self, i):
         # The function for updating the plot
-        id = self.ids[i]
-        if i == self.frames - 1:
-            # on the last step we stop the animation and just plot the finished 
-            # product instead
-            self.fig.canvas.close_event()
-            self.ax.plot(self.x[0], self.x[1], 'k-')
-            print('animation done')
-        self.line.set_data(self.x[0, :id], self.x[1, :id])
-        return self.line,
+        for n in range(len(self.artists)):
+            i = self.current_frame[n]
+            id_ = self.ids[n]
+            if i == self.max_frames[n] - 1:
+                # on the last step we stop the animation and just plot the finished 
+                # product instead
+                self.fig.canvas.close_event()
+                self.ax.plot(self.data[n][0], self.data[n][1], 'k-')
+                print('animation done')
+            self.line.set_data(self.data[n][0, :id_], self.data[n][1, :id_])
+            self.current_frame[n] += 1
+        return self.artists
 
 
 def on_mouse(event, fig, ax, n_skip, N=N):
