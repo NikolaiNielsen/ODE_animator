@@ -168,19 +168,20 @@ class Animator(object):
         # The function for updating the plot
         for n in range(len(self.artists)):
             i = self.current_frame[n]
-            id_ = self.ids[n]
-            if i == self.max_frames[n] - 1:
-                # on the last step we stop the animation and just plot the finished 
-                # product instead
-                self.fig.canvas.close_event()
-                self.ax.plot(self.data[n][0], self.data[n][1], 'k-')
-                print('animation done')
-            self.line.set_data(self.data[n][0, :id_], self.data[n][1, :id_])
+            id_ = self.ids[n][i]
+            # if i == self.max_frames[n] - 1:
+                # on the last step we stop the animation and just plot the 
+                # finished product instead
+                # self.fig.canvas.close_event()
+                # self.ax.plot(self.data[n][0], self.data[n][1], 'k-')
+                # print('animation done')
+            self.artists[n].set_data(self.data[n][0, :id_], 
+                                     self.data[n][1, :id_])
             self.current_frame[n] += 1
         return self.artists
 
 
-def on_mouse(event, fig, ax, n_skip, N=N):
+def on_mouse(event, A, fig, ax, n_skip, N=N):
     # Pressing the mouse button grabs the x and y position, simulates the 
     # system and animates it.
 
@@ -192,18 +193,12 @@ def on_mouse(event, fig, ax, n_skip, N=N):
 
     # simulate with RK4
     x, _ = sim_rk4(f, x0, dt, N, p)
-    # Get the new data length
-    N = x.shape[1]
 
-    # Get the plot ids
-    ids = get_plot_indices(N, n_skip)
-
-    # Instantiate the animator
-    A = Animator(fig, ax, x, ids, xlim, ylim)
+    A.add_artist(x, n_skip)
 
     # Run the animation
     ani = animation.FuncAnimation(
-        fig, A, init_func=A.init, frames=ids.size, interval=2, blit=True,
+        fig, A, init_func=A.init, interval=2, blit=True,
         save_count=1000,
         repeat=False)
     
@@ -230,10 +225,11 @@ def main(f=f):
     ax.axis('equal')
     ax.set_xlim(*xlim)
     ax.set_ylim(*ylim)
+    A = Animator(fig, ax, xlim, ylim)
 
     cid = fig.canvas.mpl_connect('button_press_event',
-                        lambda event: on_mouse(event, fig=fig, ax=ax, 
-                                                n_skip=n_skip))
+                        lambda event: on_mouse(event, A=A, fig=fig, ax=ax, 
+                                                  n_skip=n_skip))
 
     cid2 = fig.canvas.mpl_connect('key_press_event', quitter)
 
