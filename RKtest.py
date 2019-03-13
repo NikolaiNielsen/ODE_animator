@@ -129,17 +129,20 @@ class Animator(object):
         self.ax.axis('equal')
         self.ax.set_xlim(*xlim)
         self.ax.set_ylim(*ylim)
-        self.max_ids = []
+        self.max_frames = []
+        self.current_frame = []
         self.ids = []
         self.data = []
         self.artists = []
     
     def add_artist(self, x, n_skip):
         for xi in x:
+            ids = self.get_plot_indices(xi.shape[-1], n_skip)
             self.data.append(xi)
-            self.ids.append(self.get_plot_indices(xi.shape[-1], n_skip))
+            self.ids.append(ids)
+            self.max_frames.append(ids.size)
+            self.current_frame.append(0)
             self.artists.append(self.ax.plot([],[],'k-')[0])
-        print(self.artists)
     
     def get_plot_indices(self, N, n):
         # Returns a list of indices used for each frame of the animation
