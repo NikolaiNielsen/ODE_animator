@@ -31,12 +31,12 @@ e_stop = 0.001
 
 def f(x, p):
     mu = 2
-    x1, x2 = x
+    x1, x2 = x.T
     dx = x2
     # dy = mu * (1-x1**2) * x2 - x1
     # dx = -x2
     dy = -x1
-    return np.array((dx, dy))
+    return np.array((dx, dy)).T
 
 
 def rk4(r, t, dt, f, p=None):
@@ -104,19 +104,20 @@ def sim_rk4(f, x0, dt, N, p=None):
 
     # perform the simulation
     for n in range(1, N):
-        x[:,n] = rk4(x[:, n-1], t[n-1], dt, f, p)
+        x[:,:,n] = rk4(x[:,:, n-1], t[n-1], dt, f, p)
 
         # Calculate the minimum distance to preceeding points. Stop if smaller
         # than e_stop.
-        min_dist = get_min_dists(x[:,n], x[:,:n])
-        if min_dist <= e_stop:
+        min_dist = get_min_dists(x[:,:,n], x[:,:,:n])
+        if (min_dist <= e_stop).all():
             N = n + 1
-            return x[:,:N], t[:N]
+            return x[:,:,:N], t[:N]
     return x, t
 
 def get_min_dists(x, x_pre):
-    x_cur = np.atleast_2d(x).T
-    return np.amin(np.sqrt(np.sum((x_pre-x_cur)**2, axis=0)))
+    x_cur = np.atleast_3d(x)
+    x_pre = np.atleast_3d(x_pre)
+    return np.amin(np.sqrt(np.sum((x_pre-x_cur)**2, axis=1)), axis=1)
 
 
 class Animator(object):
