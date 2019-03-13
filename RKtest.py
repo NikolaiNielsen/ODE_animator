@@ -134,13 +134,14 @@ class Animator(object):
         self.ids = []
         self.data = []
         self.artists = []
+        self.to_be_removed = []
     
     def add_artist(self, x, n_skip):
         for xi in x:
             ids = self._get_plot_indices(xi.shape[-1], n_skip)
             self.data.append(xi)
             self.ids.append(ids)
-            self.max_frames.append(ids.size)
+            self.max_frames.append(ids.size - 1)
             self.current_frame.append(0)
             self.artists.append(self.ax.plot([],[],'k-')[0])
     
@@ -163,21 +164,32 @@ class Animator(object):
         for artist in self.artists:
             artist.set_data([], [])
         return self.artists
-
+    
+    def _remove_finished_animations(self):
+        for n in sorted(self.to_be_removed, reverse=True):
+            del self.data[n]
+            del self.artists[n]
+            del self.current_frame[n]
+            del self.max_frames[n]
+            del self.ids[n]
+        self.to_be_removed = []
+    
     def __call__(self, i):
         # The function for updating the plot
         for n in range(len(self.artists)):
             i = self.current_frame[n]
             id_ = self.ids[n][i]
-            # if i == self.max_frames[n] - 1:
+            if i == self.max_frames[n]:
+                self.to_be_removed.append(n)
                 # on the last step we stop the animation and just plot the 
                 # finished product instead
                 # self.fig.canvas.close_event()
-                # self.ax.plot(self.data[n][0], self.data[n][1], 'k-')
+                self.ax.plot(self.data[n][0], self.data[n][1], 'k-')
                 # print('animation done')
             self.artists[n].set_data(self.data[n][0, :id_], 
                                      self.data[n][1, :id_])
             self.current_frame[n] += 1
+        self._remove_finished_animations()
         return self.artists
 
 
