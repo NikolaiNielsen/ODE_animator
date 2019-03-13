@@ -122,24 +122,44 @@ def get_min_dists(x, x_pre):
 
 class Animator(object):
     # The animator object, created for every simulation we want to plot
-    def __init__(self, fig, ax, x, ids, xlim=(-2, 2), ylim=(-2, 2)):
+    def __init__(self, fig, ax, xlim=(-2, 2), ylim=(-2, 2)):
         # plug stuff into the object and create the empty line
         self.ax = ax
         self.fig = fig
-        self.line, = ax.plot([], [], 'k-')
         self.ax.axis('equal')
         self.ax.set_xlim(*xlim)
         self.ax.set_ylim(*ylim)
-        self.x = x
-        self.N = self.x.shape[1]
-        self.frames = ids.size
-        self.ids = ids
+        self.max_ids = []
+        self.ids = []
+        self.data = []
+        self.artists = []
+    
+    def add_artist(self, x, n_skip):
+        for xi in x:
+            self.data.append(xi)
+            self.ids.append(self.get_plot_indices(xi.shape[-1], n_skip))
+            self.artists.append(self.ax.plot([],[],'k-')[0])
+        print(self.artists)
+    
+    def get_plot_indices(self, N, n):
+        # Returns a list of indices used for each frame of the animation
+        # N: Total number of data points
+        # n: number of (new) points to show in each frame
+        frames = int(np.ceil(N/n))
+        id = np.cumsum(np.ones(frames)*n, dtype=int)
+        # If the last entry in id is larger than N, we set it to N, so we dont'
+        # get an index out of bounds error
+        if id[-1] > N:
+            id[-1] = N
+        # And lastly we subtract 1 to account for zero-indexation:
+        return id-1
 
     def init(self):
         # function to clear the line every time it is plotted (init function 
         # for FuncAnim)
-        self.line.set_data([], [])
-        return self.line,
+        for artist in self.artists:
+            artist.set_data([], [])
+        return self.artists
 
     def __call__(self, i):
         # The function for updating the plot
