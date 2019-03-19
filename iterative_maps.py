@@ -25,7 +25,7 @@ def sim(x0, f=f, N=N):
     return x
 
 
-def generate_cobweb_points(x):
+def _generate_cobweb_points(x):
     # Generates the points for a cobweb plot, for a given input vector x
 
     # for each iteration we want two lines, one vertical, and one horizontal. 
@@ -55,7 +55,7 @@ def cobweb(x0, f=f, N=N, lims=lims):
 
     # Perform the simulation and generate cobweb points
     x = sim(x0, f, N)
-    points = generate_cobweb_points(x)
+    points = _generate_cobweb_points(x)
 
     # generating the straight line data and the map function for plotting
     straight_line = np.linspace(*lims, num=100)
