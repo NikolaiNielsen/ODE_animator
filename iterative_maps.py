@@ -5,22 +5,24 @@ import matplotlib.pyplot as plt
 lims = np.array([0, 1])
 N = 100
 x0 = 0.1
+N_p = 200
+N_start = 300
+N_stop = 600
 
 
-def f(x):
+def f(x, p):
     # The iterative map function.
-    r = 3.1
-    return r*x*(1-x)
+    return p*x*(1-x)
 
 
-def sim(x0, f=f, N=N):
+def sim(x0, f=f, N=N, p=None):
     # Generates the first N points of the iterative map f, with the initial
     # condition x0.
 
     x = np.zeros(N)
     x[0] = x0
     for i in range(1,N):
-        x[i] = f(x[i-1])
+        x[i] = f(x[i-1], p)
 
     return x
 
@@ -73,6 +75,28 @@ def cobweb(x0, f=f, N=N, lims=lims):
     plt.show()
 
 
+
+def generate_orbit_at_val(f,p, N_start, N_stop, x0):
+    points = sim(x0, f, N_stop, p)
+    return points[N_start-1:]
+
+
+def orbit(f, p_range, N_start=N_stop, N_stop=N_stop, N_p=N_p, x_range=lims):
+    p_vals = np.linspace(*p_range, num=N_p)
+    
+    fig, ax = plt.subplots()
+
+    for p in p_vals:
+        x0 = np.random.uniform(*x_range)
+        points = generate_orbit_at_val(f, p, N_start, N_stop, x0)
+        x_plot = np.ones_like(points) * p
+        ax.scatter(x_plot, points, s=1, c='k')
+
+    ax.set_xlim(*p_range)
+    ax.set_ylim(*x_range)
+    plt.show()
+
+
 if __name__ == "__main__":
-    cobweb(x0)
+    orbit(f, [2.9, 4], N_p=1000, x_range=[0,1])
 
