@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-xlim = np.array([0, 1])
+lims = np.array([0, 1])
 N = 100
 x0 = 0.1
 
@@ -31,12 +31,35 @@ def generate_cobweb_points(x):
     points[0,::2] = x
     points[0,1::2] = x[:-1]
 
-    # Generate y-values. Should be like x-values, but shifted by one. And the
-    # first element should be 0.
-    points[1, 1::2] = x[:-1]
-    points[1, 2::2] = x[:-1]
+    # Generate y-values. Should be like x-values, but shifted by one to the
+    # right. The first value is replaced by a zero, and the last value is the
+    # same as the second to last
+    points[1, 1::2] = x[1:]
+    points[1, 2::2] = x[1:]
 
     return points
+
+
+def cobweb(x0, f=f, N=N, lims=lims):
+
+    fig, ax = plt.subplots()
+
+    x = sim(x0, f, N)
+
+    points = generate_cobweb_points(x)
+
+    straight_line = np.linspace(*lims, num=100)
+    function = f(straight_line)
+
+    # set limits
+    ax.set_xlim(lims)
+    ax.set_ylim(lims)
+
+    ax.plot(straight_line, straight_line, 'k-', linewidth=1)
+    ax.plot(straight_line, function, 'k-', linewidth=2)
+    ax.plot(points[0], points[1], linewidth=1)
+
+    plt.show()
 
 
 def main(x0, f=f, N=N):
@@ -50,5 +73,5 @@ def main(x0, f=f, N=N):
 
 
 if __name__ == "__main__":
-    main(x0)
+    cobweb(x0)
 
