@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-xlim = np.array([-2, ])
+xlim = np.array([-2, 2])
 N = 100
 x0 = 0.1
 
