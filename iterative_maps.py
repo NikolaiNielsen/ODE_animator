@@ -6,12 +6,17 @@ lims = np.array([0, 1])
 N = 100
 x0 = 0.1
 
+
 def f(x):
+    # The iterative map function.
     r = 3.1
     return r*x*(1-x)
 
 
 def sim(x0, f=f, N=N):
+    # Generates the first N points of the iterative map f, with the initial
+    # condition x0.
+
     x = np.zeros(N)
     x[0] = x0
     for i in range(1,N):
@@ -21,6 +26,7 @@ def sim(x0, f=f, N=N):
 
 
 def generate_cobweb_points(x):
+    # Generates the points for a cobweb plot, for a given input vector x
 
     # for each iteration we want two lines, one vertical, and one horizontal. 
     # Except for the last iteration, where we just want one vertical line
@@ -41,33 +47,28 @@ def generate_cobweb_points(x):
 
 
 def cobweb(x0, f=f, N=N, lims=lims):
+    # Function to plot the cobweb plot for a given one-dimensional map and
+    # initial condition.
 
+    # Create the figure
     fig, ax = plt.subplots()
 
+    # Perform the simulation and generate cobweb points
     x = sim(x0, f, N)
-
     points = generate_cobweb_points(x)
 
+    # generating the straight line data and the map function for plotting
     straight_line = np.linspace(*lims, num=100)
     function = f(straight_line)
 
-    # set limits
-    ax.set_xlim(lims)
-    ax.set_ylim(lims)
-
+    # Plotting x, the map function and the cobweb
     ax.plot(straight_line, straight_line, 'k-', linewidth=1)
     ax.plot(straight_line, function, 'k-', linewidth=2)
     ax.plot(points[0], points[1], linewidth=1)
 
-    plt.show()
-
-
-def main(x0, f=f, N=N):
-    fig, ax = plt.subplots()
-
-    x = sim(x0, f, N)
-
-    ax.plot(x)
+    # Setting limits and showing the plot
+    ax.set_xlim(lims)
+    ax.set_ylim(lims)
 
     plt.show()
 
