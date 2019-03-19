@@ -20,6 +20,25 @@ def sim(x0, f=f, N=N):
     return x
 
 
+def generate_cobweb_points(x):
+
+    # for each iteration we want two lines, one vertical, and one horizontal. 
+    # Except for the last iteration, where we just want one vertical line
+    points = np.zeros((2, x.size * 2 - 1))
+
+    # Generate x-values. Every element in x should be repeated once. Except for
+    # the last element, which shouldn't be repeated.
+    points[0,::2] = x
+    points[0,1::2] = x[:-1]
+
+    # Generate y-values. Should be like x-values, but shifted by one. And the
+    # first element should be 0.
+    points[1, 1::2] = x
+    points[1, 2::2] = x[:-1]
+
+    return points
+
+
 def main(x0, f=f, N=N):
     fig, ax = plt.subplots()
 
