@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-xlim = np.array([-2, 2])
+xlim = np.array([0, 1])
 N = 100
 x0 = 0.1
 
@@ -33,7 +33,7 @@ def generate_cobweb_points(x):
 
     # Generate y-values. Should be like x-values, but shifted by one. And the
     # first element should be 0.
-    points[1, 1::2] = x
+    points[1, 1::2] = x[:-1]
     points[1, 2::2] = x[:-1]
 
     return points
@@ -51,3 +51,4 @@ def main(x0, f=f, N=N):
 
 if __name__ == "__main__":
     main(x0)
+
