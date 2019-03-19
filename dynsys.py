@@ -170,7 +170,7 @@ def _on_mouse(event, A, fig, ax, n_skip=n_skip, N=N):
     x0 = np.array([event.xdata, event.ydata])
 
     # simulate with RK4
-    x, _ = sim_rk4(f, x0, dt, N, p)
+    x, _ = sim_rk4(f, x0, dt, N)
 
     A.add_artist(x, n_skip)
 
