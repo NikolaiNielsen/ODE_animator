@@ -26,7 +26,7 @@ t = np.zeros(N)
 dt = 0.01
 xlim = np.array([-1, 1]) * 4
 ylim = np.array([-1, 1]) * 4
-n_skip = 10
+n_skip = 2
 e_stop = 0.001
 
 def f(x, p):
@@ -185,7 +185,7 @@ class Animator(object):
                 # finished product instead
                 # self.fig.canvas.close_event()
                 self.ax.plot(self.data[n][0], self.data[n][1], 'k-')
-                # print('animation done')
+                print('animation done')
             self.artists[n].set_data(self.data[n][0, :id_], 
                                      self.data[n][1, :id_])
             self.current_frame[n] += 1
