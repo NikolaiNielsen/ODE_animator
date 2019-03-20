@@ -48,7 +48,7 @@ def _generate_cobweb_points(x):
     return points
 
 
-def cobweb(x0, f=f, N=N, lims=lims):
+def cobweb(x0, f=f, N=N, lims=lims, p=None):
     # Function to plot the cobweb plot for a given one-dimensional map and
     # initial condition.
 
@@ -56,12 +56,12 @@ def cobweb(x0, f=f, N=N, lims=lims):
     fig, ax = plt.subplots()
 
     # Perform the simulation and generate cobweb points
-    x = sim(x0, f, N)
+    x = sim(x0, f, N, p)
     points = _generate_cobweb_points(x)
 
     # generating the straight line data and the map function for plotting
     straight_line = np.linspace(*lims, num=100)
-    function = f(straight_line)
+    function = f(straight_line, p)
 
     # Plotting x, the map function and the cobweb
     ax.plot(straight_line, straight_line, 'k-', linewidth=1)
@@ -98,5 +98,5 @@ def orbit(f, p_range, N_start=N_stop, N_stop=N_stop, N_p=N_p, x_range=lims):
 
 
 if __name__ == "__main__":
-    orbit(f, [2.9, 4], N_p=1000, x_range=[0,1])
+    orbit(f, [2.9, 4], N_p=2000, N_stop = 675, x_range=[0,1])
 
