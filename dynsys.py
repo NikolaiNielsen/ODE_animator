@@ -73,27 +73,42 @@ def sim_rk4(f, x0, dt=dt, N=N, e_stop=e_stop):
 
         # Calculate the minimum distance to preceeding points. Stop if smaller
         # than e_stop.
-        min_dist = get_min_dists(x[:, :, n], x[:, :, :n])
+        min_dist = _get_min_dists(x[:, :, n], x[:, :, :n])
         if (min_dist <= e_stop).all():
             N = n + 1
             return x[:, :, :N], t[:N]
     return x, t
 
 
-def get_min_dists(x, x_pre):
+def _get_min_dists(x, x_pre):
     x_cur = np.atleast_3d(x)
     x_pre = np.atleast_3d(x_pre)
     return np.amin(np.sqrt(np.sum((x_pre-x_cur)**2, axis=1)), axis=1)
 
 
-def add_traj_to_fig(x0, f, fig=None, ax=None, dt=dt, N=N, e_stop=e_stop):
+def add_traj_to_fig(x0, f, vec_perc=0.25, fig=None, ax=None,
+                    dt=dt, N=N, e_stop=e_stop):
     # First simulate the new trajectories
     x, _ = sim_rk4(f, x0, dt, N, e_stop)
     if fig == None or ax == None:
         fig, ax = plt.subplots()
+    
 
+    starts = []
+    datas = []
     for n in x:
         ax.plot(n[0], n[1], 'k-', linewidth=1)
+        N = n.shape[1]
+        n_arrow = round(vec_perc*(N-1))
+        start_point = n[:, n_arrow]
+        end_point = n[:, n_arrow+1]
+        data = end_point - start_point
+        datas.append(data)
+        starts.append(start_point)
+    starts = np.array(starts)
+    datas = np.array(datas)
+    ax.quiver(starts[:,0], starts[:,1], datas[:,0], datas[:,1], pivot='middle')
+    
     
     fig.canvas.draw()
     return fig, ax
@@ -233,4 +248,6 @@ def animation_window(f=f, xlim=xlim, ylim=ylim, n_skip=n_skip):
 
 
 if __name__ == "__main__":
-    animation_window()
+    a= np.array(((1,0),(2,0),(3,0)))
+    fig, ax = add_traj_to_fig(a, f)
+    plt.show()
