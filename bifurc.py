@@ -114,12 +114,18 @@ def bifurc(f, df, rlim, xlim, nr=100, nx=100, N=15, atol=1e-08, rtol=1e-05):
 
     # now we create the figure
     fig, ax = plt.subplots()
-    ax.scatter(roots_r, roots, c=roots_color, s=10)
+    ax.scatter(roots_r[stable], roots[stable], 
+               c=colors[0], s=10, label='stable')
+    ax.scatter(roots_r[unstable], roots[unstable],
+               c=colors[1], s=10, label='unstable')
+    ax.scatter(roots_r[tangent], roots[tangent],
+               c=colors[2], s=10, label='tangent')
     ax.set_xlim(*rlim)
     ax.set_ylim(*xlim)
     ax.set_xlabel('r')
     ax.set_ylabel('x')
     ax.set_title('Bifurcation diagram for f')
+    ax.legend()
     fig.tight_layout()
     return fig, ax
     
