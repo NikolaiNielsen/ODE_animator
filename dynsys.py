@@ -107,8 +107,13 @@ def add_traj_to_fig(x0, f, vec_perc=0.25, fig=None, ax=None,
         starts.append(start_point)
     starts = np.array(starts)
     datas = np.array(datas)
-    ax.quiver(starts[:,0], starts[:,1], datas[:,0], datas[:,1], pivot='middle',
-              linewidth=1)
+
+    # let's normalize the arrows
+    norm = np.linalg.norm(datas, axis=1, keepdims=True)
+    length = 0.001
+    datas /= norm
+    ax.quiver(starts[:,0], starts[:,1], datas[:,0], datas[:,1], 
+              pivot='middle', units='dots', width=3)
     
     
     fig.canvas.draw()
