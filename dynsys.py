@@ -3,12 +3,12 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import sys
 
-dt = 0.01
+dt = 0.05
 xlim = np.array([-1, 1]) * 4
 ylim = np.array([-1, 1]) * 4
 n_skip = 10
 e_stop = 0.001
-N = 5000
+N = 1000
 
 def f(x):
     x1, x2 = x.T
@@ -60,7 +60,8 @@ def rka(x, t, dt, err, f):
 
 
 def sim_rk4(f, x0, dt=dt, N=N, e_stop=e_stop):
-    # create our position vector
+    # create our position vector. Assume x0.shape == (n, 2), where n is number
+    # of initial conditions.
     x = np.zeros(list(np.atleast_2d(x0).shape) + [N])
     x[:, :, 0] = x0
     # create our time vector
@@ -84,6 +85,19 @@ def get_min_dists(x, x_pre):
     x_pre = np.atleast_3d(x_pre)
     return np.amin(np.sqrt(np.sum((x_pre-x_cur)**2, axis=1)), axis=1)
 
+
+def add_traj_to_fig(x0, f, fig=None, ax=None, dt=dt, N=N, e_stop=e_stop):
+    # First simulate the new trajectories
+    x, _ = sim_rk4(f, x0, dt, N, e_stop)
+    if fig == None or ax == None:
+        fig, ax = plt.subplots()
+
+    for n in x:
+        ax.plot(n[0], n[1], 'k-', linewidth=1)
+    
+    fig.canvas.draw()
+    return fig, ax
+    
 
 class Animator(object):
     # The animator object, created for every simulation we want to plot
@@ -171,7 +185,7 @@ def _on_mouse(event, A, fig, ax, n_skip=n_skip, N=N):
 
     # simulate with RK4
     x, _ = sim_rk4(f, x0, dt, N, p)
-
+ 
     A.add_artist(x, n_skip)
 
     # Run the animation
