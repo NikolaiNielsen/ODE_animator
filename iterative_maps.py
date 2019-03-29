@@ -18,11 +18,12 @@ def f(x, p):
 def sim(x0, f=f, N=N, p=None):
     # Generates the first N points of the iterative map f, with the initial
     # condition x0.
-
-    x = np.zeros(N)
-    x[0] = x0
+    # assumes x0 is a 1D-array or a float
+    x0_arr = np.atleast_1d(x0)
+    x = np.zeros((*x0_arr.shape, N))
+    x[:, 0] = x0_arr
     for i in range(1,N):
-        x[i] = f(x[i-1], p)
+        x[:, i] = f(x[:, i-1], p)
 
     return x
 
