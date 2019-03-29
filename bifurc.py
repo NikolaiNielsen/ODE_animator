@@ -2,14 +2,17 @@ import matplotlib.pyplot as plt, numpy as np
 import dynsys
 import iterative_maps
 
-def f(x):
-    return np.sin(x)
+def f(x, r):
+    return r*x-x**3
 
-def df(x):
-    return np.cos(x)
+def df(x, r):
+    return r-3*x**2
+
+f = np.vectorize(f)
+df = np.vectorize(df)
 
 
-def newton(x0, f, df, N=15, atol = 1e-08, rtol = 1e-05):
+def newton(x0, f, df, r=None, N=15, atol = 1e-08, rtol = 1e-05):
     # perform the Newton method for N iterations. Needs initial guesses,
     # function and its derivative. Also takes into account zeros of the
     # derivative.
@@ -18,7 +21,7 @@ def newton(x0, f, df, N=15, atol = 1e-08, rtol = 1e-05):
     x = np.zeros((*x0_arr.shape, N))
     x[:, 0] = x0_arr
     for i in range(1, N):
-        dfs = df(x[:, i-1])
+        dfs = df(x[:, i-1], r)
         zeros = dfs == 0
         if np.sum(zeros) != 0:
             # we have zeros, do something! (gently nudge by +- epsilon)
@@ -26,13 +29,13 @@ def newton(x0, f, df, N=15, atol = 1e-08, rtol = 1e-05):
             # 50/50 either a -1 or 1.
             direction = np.random.randint(0, 2, np.sum(zeros)) * 2 - 1
             dfs[zeros] = epsilon*direction
-        x[:, i] = x[:, i-1] - (f(x[:, i-1]) / dfs)
+        x[:, i] = x[:, i-1] - (f(x[:, i-1], r) / dfs)
 
     # we only return the result
     x_end = x[:, -1]
 
     # and make sure to only include those that are nearly zero
-    is_zero = np.isclose(f(x_end), 0, rtol=rtol, atol=atol)
+    is_zero = np.isclose(f(x_end, r), 0, rtol=rtol, atol=atol)
     x_end = x_end[is_zero]
     return x_end
 
@@ -67,26 +70,69 @@ def find_approx_unique(x, atol=1e-08, rtol=1e-05):
     return np.array(x_unique)
 
 
-def main():
-    lim = [-1, 3*np.pi]
-    n = 100
-    x0 = np.linspace(*lim, n)
-    x = newton(x0, f, df)
+def bifurc(f, df, rlim, xlim, nr=100, nx=100, N=15, atol=1e-08, rtol=1e-05):
+    # calculates the bifurcation diagram. For each value of r, the roots of f
+    # within xlim are found using Newtons method, Points are colored according
+    # to their stability.
+    
+    # Colors: blue is stable, red is unstable, green is tangent 
+    colors = ['b', 'r', 'g']
 
-    x_inside = limit_roots(x, lim)
+    # the y-values
+    roots = []
+    # and corresponding x-values
+    roots_r = []
+    x0 = np.linspace(*xlim, num=nx)
+    rs = np.linspace(*rlim, num=nr)
+    for r in rs:
+        # first we find the roots
+        x_end = newton(x0, f, df, r, N, atol, rtol)
+        x_limit = limit_roots(x_end, xlim)
+        x_unique = find_approx_unique(x_limit, atol, rtol)
+        # Then we add the roots to a list
+        roots += x_unique.tolist()
+        # And the r-value for each root
+        roots_r += [r] * x_unique.size
+    
+    # gather roots in arrays
+    roots = np.array(roots)
+    roots_r = np.array(roots_r)
+
+    # calculate the derivatives
+    dfs = df(roots, roots_r)
+
+    # find stability and instabilities
+    stable = dfs < 0
+    unstable = dfs > 0
+    tangent = dfs == 0
+
+    # color the roots
+    roots_color = np.array(['b'] * dfs.size)
+    roots_color[stable] = colors[0]
+    roots_color[unstable] = colors[1]
+    roots_color[tangent] = colors[2]
+
+    # now we create the figure
     fig, ax = plt.subplots()
-    ax.scatter(x_inside, np.ones_like(x_inside))
-    # ax.set_xlim(*lim)
-    print(x_inside)
-    x_unique = find_approx_unique(x_inside)
-    print(x_unique)
+    ax.scatter(roots_r, roots, c=roots_color, s=10)
+    ax.set_xlim(*rlim)
+    ax.set_ylim(*xlim)
+    ax.set_xlabel('r')
+    ax.set_ylabel('x')
+    ax.set_title('Bifurcation diagram for f')
+    fig.tight_layout()
+    return fig, ax
+    
+
+
+
+def main():
+    xlim = [-1, 1]
+    rlim = [-1, 1]
+    nx = 200
+    nr = 200
+    fig, ax = bifurc(f, df, rlim, xlim, nr, nx)
     plt.show()
 
 if __name__ == "__main__":
     main()
-
-# idea for getting (approximately) unique values
-# loop through values of x_inside.
-# For each (unique) value, take the ones that are approximately equal to that one, and
-# note their index in x_inside.
-# Only compare those
