@@ -3,10 +3,10 @@ import dynsys
 import iterative_maps
 
 def f(x, r):
-    return r*x-x**3
+    return r*x+x**3 - x**5
 
 def df(x, r):
-    return r-3*x**2
+    return r+3*x**2 - 5*x**4
 
 f = np.vectorize(f)
 df = np.vectorize(df)
@@ -133,7 +133,7 @@ def bifurc(f, df, rlim, xlim, nr=100, nx=100, N=15, atol=1e-08, rtol=1e-05):
 
 
 def main():
-    xlim = [-1, 1]
+    xlim = [-2, 2]
     rlim = [-1, 1]
     nx = 200
     nr = 200
