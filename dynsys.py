@@ -110,7 +110,7 @@ def add_traj_to_fig(x0, f, vec_perc=0.25, fig=None, ax=None,
 
     # let's normalize the arrows
     norm = np.linalg.norm(datas, axis=1, keepdims=True)
-    length = 0.001
+    # length = 0.001
     datas /= norm
     ax.quiver(starts[:,0], starts[:,1], datas[:,0], datas[:,1], 
               pivot='middle', units='dots', width=3)
@@ -193,7 +193,7 @@ class Animator(object):
         return self.artists
 
 
-def _on_mouse(event, A, fig, ax, n_skip=n_skip, N=N):
+def _on_mouse(event, A, fig, ax, n_skip=n_skip, N=N, e_stop=e_stop, dt=dt):
     # Pressing the mouse button grabs the x and y position, simulates the
     # system and animates it.
 
@@ -205,7 +205,7 @@ def _on_mouse(event, A, fig, ax, n_skip=n_skip, N=N):
     x0 = np.array([event.xdata, event.ydata])
 
     # simulate with RK4
-    x, _ = sim_rk4(f, x0, dt, N, p)
+    x, _ = sim_rk4(f, x0, dt, N, e_stop)
  
     A.add_artist(x, n_skip)
 
@@ -229,7 +229,8 @@ def _disconnect_mouse(event, fig, cid):
         print('on_mouse disconnected')
 
 
-def animation_window(f=f, xlim=xlim, ylim=ylim, n_skip=n_skip):
+def animation_window(f=f, xlim=xlim, ylim=ylim, n_skip=n_skip, dt=dt,
+                     e_stop=e_stop):
     fig, ax = plt.subplots(figsize=(8, 8))
     ax.axis('equal')
     ax.set_xlim(*xlim)
@@ -239,7 +240,9 @@ def animation_window(f=f, xlim=xlim, ylim=ylim, n_skip=n_skip):
     cid = fig.canvas.mpl_connect('button_press_event',
                                  lambda event: _on_mouse(event, A=A, fig=fig,
                                                          ax=ax,
-                                                         n_skip=n_skip))
+                                                         n_skip=n_skip,
+                                                         e_stop=e_stop,
+                                                         dt=dt))
 
     cid2 = fig.canvas.mpl_connect('key_press_event', _quitter)
 
@@ -253,7 +256,39 @@ def animation_window(f=f, xlim=xlim, ylim=ylim, n_skip=n_skip):
     plt.show()
 
 
-if __name__ == "__main__":
-    a= np.array(((1,0),(2,0),(3,0)))
-    fig, ax = add_traj_to_fig(a, f)
+def phase_plane_builder(f=f, xlim=xlim, ylim=ylim, vec_perc=0.25, dt=dt, N=N,
+                        e_stop=e_stop):
+    fig, ax = plt.subplots(figsize=(8, 8))
+    ax.axis('equal')
+    ax.set_xlim(*xlim)
+    ax.set_ylim(*ylim)
+    cid = fig.canvas.mpl_connect('button_press_event',
+                                 lambda event: _on_mouse_no_anim(
+                                     event, f=f, vec_perc=vec_perc, fig=fig,
+                                     ax=ax, dt=dt, N=N, e_stop=e_stop))
+    cid2 = fig.canvas.mpl_connect('key_press_event', _quitter)
+
+    cid3 = fig.canvas.mpl_connect(
+        'key_press_event', lambda event: _disconnect_mouse(event, fig, cid))
     plt.show()
+
+
+def _on_mouse_no_anim(event, f, vec_perc=0.25, fig=None, ax=None,
+                      dt=dt, N=N, e_stop=e_stop):
+    # Pressing the mouse button grabs the x and y position, simulates the
+    # system and animates it.
+
+    # But only if it's a left mouse click
+    if event.button != 1:
+        return
+
+    # Grab the initial conditions
+    x0 = np.array([event.xdata, event.ydata])
+
+    # Add trajectory to fig
+    add_traj_to_fig(x0=x0, f=f, vec_perc=vec_perc, fig=fig, ax=ax,
+                    dt=dt, N=N, e_stop=e_stop)
+
+
+if __name__ == "__main__":
+    phase_plane_builder()
