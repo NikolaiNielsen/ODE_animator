@@ -3,10 +3,10 @@ import dynsys
 import iterative_maps
 
 def f(x, r):
-    return r*x+x**3 - x**5
+    return r  + x**2
 
 def df(x, r):
-    return r+3*x**2 - 5*x**4
+    return 2*x
 
 f = np.vectorize(f)
 df = np.vectorize(df)
@@ -120,6 +120,10 @@ def bifurc(f, df, rlim, xlim, nr=100, nx=100, N=15, atol=1e-08, rtol=1e-05):
                c=colors[1], s=10, label='unstable')
     ax.scatter(roots_r[tangent], roots[tangent],
                c=colors[2], s=10, label='tangent')
+    
+    # plot xaxis
+    ax.plot(rlim, [0,0], 'k-', linewidth=1)
+
     ax.set_xlim(*rlim)
     ax.set_ylim(*xlim)
     ax.set_xlabel('r')
@@ -134,7 +138,7 @@ def bifurc(f, df, rlim, xlim, nr=100, nx=100, N=15, atol=1e-08, rtol=1e-05):
 
 def main():
     xlim = [-2, 2]
-    rlim = [-1, 1]
+    rlim = [-1, 2]
     nx = 200
     nr = 200
     fig, ax = bifurc(f, df, rlim, xlim, nr, nx)

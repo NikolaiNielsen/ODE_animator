@@ -7,13 +7,13 @@ dt = 0.05
 xlim = np.array([-1, 1]) * 4
 ylim = np.array([-1, 1]) * 4
 n_skip = 10
-e_stop = 0.001
+e_stop = 0
 N = 1000
 
 def f(x):
-    x1, x2 = x.T
-    dx = x2
-    dy = -x1
+    x, y = x.T
+    dx = x + y - x*np.sqrt(x*x + y*y)
+    dy = -x + y - y*np.sqrt(x*x + y*y)
     return np.array((dx, dy)).T
 
 
@@ -291,4 +291,6 @@ def _on_mouse_no_anim(event, f, vec_perc=0.25, fig=None, ax=None,
 
 
 if __name__ == "__main__":
-    phase_plane_builder()
+    xlim = [-np.pi, np.pi]
+    ylim = [-np.pi, np.pi]
+    phase_plane_builder(xlim=xlim, ylim=ylim)
